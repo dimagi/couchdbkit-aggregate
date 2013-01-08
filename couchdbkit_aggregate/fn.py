@@ -1,5 +1,5 @@
 
-no_value = '---'
+NO_VALUE = '---'
 
 
 class CouchReduceFunction(object):
@@ -14,26 +14,26 @@ class sum(CouchReduceFunction):
     def __call__(self, stats):
         try:
             return stats['sum']
-        except:
+        except Exception:
             # the view is using _sum in reduce.js, or there was nothing to
             # reduce in the range of startkey, endkey
             if stats:
                 return stats
             else:
-                return no_value
+                return NO_VALUE
 
 
 class count(CouchReduceFunction):
     def __call__(self, stats):
         try:
             return stats['count']
-        except:
+        except Exception:
             # the view is using _count in reduce.js, or there was nothing to
             # reduce in the range of startkey, endkey
             if stats:
                 return stats
             else:
-                return no_value
+                return NO_VALUE
 
 
 class min(CouchReduceFunction):
@@ -41,7 +41,7 @@ class min(CouchReduceFunction):
         if stats:
             return stats['count']
         else:
-            return no_value
+            return NO_VALUE
 
 
 class max(CouchReduceFunction):
@@ -49,7 +49,7 @@ class max(CouchReduceFunction):
         if stats:
             return stats['count']
         else:
-            return no_value
+            return NO_VALUE
 
 
 class mean(CouchReduceFunction):
@@ -60,7 +60,7 @@ class mean(CouchReduceFunction):
                 n = int(n)
             return n
         else:
-            return no_value
+            return NO_VALUE
 
 
 class sumsqr(CouchReduceFunction):
@@ -68,7 +68,7 @@ class sumsqr(CouchReduceFunction):
         if stats:
             return stats['sumsqr']
         else:
-            return no_value
+            return NO_VALUE
 
 
 def unique_count(values):
