@@ -1,6 +1,9 @@
 from . import fn
+from numbers import Number
+from couchdbkit_aggregate.fn import NO_VALUE
 
-__all__ = ['AggregateView', 'KeyView']
+__all__ = ['AggregateView', 'KeyView', 'IndicatorView']
+
 
 class KeyView(object):
     def __init__(self, key, reduce_fn=None, startkey_fn=None, endkey_fn=None,
@@ -53,10 +56,33 @@ class KeyView(object):
         return self.reduce_fn(result)
 
 
+class IndicatorView(object):
+    def __init__(self, numerator_view, denominator_view, indicator_fn=None):
+        """
+        numerator_view -- The KeyView that will be used to calculate the numerator
+        denominator_view -- The KeyView that will be used to calculate the denominator
+
+        indicator_fn -- function used to combine the numerator and denominator. (default: (num / den) * 100
+        """
+
+        self.numerator_view = numerator_view
+        self.denominator_view = denominator_view
+        self.indicator_fn = indicator_fn or (lambda x, y: x * 100 / y)
+
+    def get_value(self, key, startkey=None, endkey=None, couch_view=None,
+                  db=None, **kwargs):
+        numerator = self.numerator_view.get_value(key, startkey, endkey, couch_view, db, **kwargs)
+        denominator = self.denominator_view.get_value(key, startkey, endkey, couch_view, db, **kwargs)
+        if isinstance(numerator, Number) and isinstance(denominator, Number):
+            return self.indicator_fn(numerator, denominator)
+        else:
+            return NO_VALUE
+
+
 class KeyViewCollector(type):
     def __new__(cls, name, bases, attrs):
         attrs['key_views'] = dict((name, attr) for name, attr in attrs.items()
-                                  if isinstance(attr, KeyView))
+                                  if isinstance(attr, KeyView) or isinstance(attr, IndicatorView))
 
         return super(KeyViewCollector, cls).__new__(cls, name, bases, attrs)
 
