@@ -69,10 +69,9 @@ class IndicatorView(object):
         self.denominator_view = denominator_view
         self.indicator_fn = indicator_fn or (lambda x, y: x * 100 / y)
 
-    def get_value(self, key, startkey=None, endkey=None, couch_view=None,
-                  db=None, **kwargs):
-        numerator = self.numerator_view.get_value(key, startkey, endkey, couch_view, db, **kwargs)
-        denominator = self.denominator_view.get_value(key, startkey, endkey, couch_view, db, **kwargs)
+    def get_value(self, key, **kwargs):
+        numerator = self.numerator_view.get_value(key, **kwargs)
+        denominator = self.denominator_view.get_value(key, **kwargs)
         if isinstance(numerator, Number) and isinstance(denominator, Number):
             return self.indicator_fn(numerator, denominator)
         else:
