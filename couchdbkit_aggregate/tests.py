@@ -22,12 +22,9 @@ class ViewTests(unittest.TestCase):
             baz = IndicatorView(KeyView('a'), KeyView('b'))
             fake = MockView(5)
 
-        self.assertIn('foo', MyView.key_views)
-        self.assertIsInstance(MyView.key_views['foo'], KeyView)
-        self.assertIn('bar', MyView.key_views)
-        self.assertIsInstance(MyView.key_views['bar'], KeyView)
-        self.assertIn('baz', MyView.key_views)
-        self.assertIsInstance(MyView.key_views['baz'], IndicatorView)
+        self.assertIsInstance(MyView.key_views.get('foo', 'missing'), KeyView)
+        self.assertIsInstance(MyView.key_views.get('bar', 'missing'), KeyView)
+        self.assertIsInstance(MyView.key_views.get('baz', 'missing'), IndicatorView)
 
         self.assertNotIn('fake', MyView.key_views)
 

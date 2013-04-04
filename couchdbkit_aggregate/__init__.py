@@ -81,7 +81,7 @@ class IndicatorView(object):
 class KeyViewCollector(type):
     def __new__(cls, name, bases, attrs):
         attrs['key_views'] = dict((name, attr) for name, attr in attrs.items()
-                                  if isinstance(attr, KeyView) or isinstance(attr, IndicatorView))
+                                  if isinstance(attr, (KeyView, IndicatorView)))
 
         return super(KeyViewCollector, cls).__new__(cls, name, bases, attrs)
 
