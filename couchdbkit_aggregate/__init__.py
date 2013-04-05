@@ -37,7 +37,7 @@ class KeyView(object):
         self.couch_view = couch_view
         self.db = db
 
-    @memoize 
+    #@memoize
     def get_value(self, key, startkey=None, endkey=None, couch_view=None,
                   db=None, **kwargs):
         startkey = key + self.key_slug + self.startkey_fn(startkey or [])
@@ -58,7 +58,7 @@ class KeyView(object):
 
 
 class AggregateKeyView(object):
-    def __init__(self, *key_views, fn=None):
+    def __init__(self, fn=None, *key_views):
         """
         key_views -- the KeyViews whose results to pass to the calculation
         fn -- the function to apply to the key_views
