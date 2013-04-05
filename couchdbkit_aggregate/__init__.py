@@ -1,5 +1,5 @@
 from . import fn
-from memoize import memoize
+#from memoize import memoize
 
 __all__ = ['AggregateView', 'KeyView', 'AggregateKeyView']
 
