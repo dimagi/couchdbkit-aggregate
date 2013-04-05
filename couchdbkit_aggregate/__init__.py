@@ -1,6 +1,6 @@
 from . import fn
-from numbers import Number
 from couchdbkit_aggregate.fn import NO_VALUE
+from memoize import memoize
 
 __all__ = ['AggregateView', 'KeyView', 'IndicatorView']
 
@@ -37,6 +37,7 @@ class KeyView(object):
         self.couch_view = couch_view
         self.db = db
 
+    @memoize 
     def get_value(self, key, startkey=None, endkey=None, couch_view=None,
                   db=None, **kwargs):
         startkey = key + self.key_slug + self.startkey_fn(startkey or [])
@@ -56,42 +57,42 @@ class KeyView(object):
         return self.reduce_fn(result)
 
 
-class IndicatorView(object):
-    def __init__(self, numerator_view, denominator_view, indicator_fn=None):
+class AggregateKeyView(object):
+    def __init__(self, *key_views, fn=None):
         """
-        numerator_view -- The KeyView that will be used to calculate the numerator
-        denominator_view -- The KeyView that will be used to calculate the denominator
+        key_views -- the KeyViews whose results to pass to the calculation
+        fn -- the function to apply to the key_views
 
-        indicator_fn -- function used to combine the numerator and denominator. (default: (num / den) * 100
         """
-
-        self.numerator_view = numerator_view
-        self.denominator_view = denominator_view
-        self.indicator_fn = indicator_fn or (lambda x, y: x * 100 / y)
+        self.key_views = key_views
+        self.fn = fn
 
     def get_value(self, key, **kwargs):
-        numerator = self.numerator_view.get_value(key, **kwargs)
-        denominator = self.denominator_view.get_value(key, **kwargs)
-        if isinstance(numerator, Number) and isinstance(denominator, Number):
-            return self.indicator_fn(numerator, denominator)
-        else:
-            return NO_VALUE
+        return self.fn(*[v.get_value(key, **kwargs) for v in self.key_views]) 
 
 
-class KeyViewCollector(type):
+class ViewCollector(type):
     def __new__(cls, name, bases, attrs):
-        attrs['key_views'] = dict((name, attr) for name, attr in attrs.items()
-                                  if isinstance(attr, (KeyView, IndicatorView)))
+        key_views = {}
+
+        for name, attr in attrs.items():
+            if isinstance(attr, (KeyView, AggregateKeyView)):
+                key_views[name] = attr
+                attrs.pop(name)
+                
+        attrs['key_views'] = key_views
 
         return super(KeyViewCollector, cls).__new__(cls, name, bases, attrs)
 
 
 class AggregateView(object):
-    __metaclass__ = KeyViewCollector
+    __metaclass__ = ViewCollector
 
     @classmethod
-    def view(cls, key, **kwargs):
+    def get_result(cls, key, **kwargs):
         row = {}
+
         for slug, key_view in cls.key_views.items():
             row[slug] = key_view.get_value(key, **kwargs)
+
         return row
