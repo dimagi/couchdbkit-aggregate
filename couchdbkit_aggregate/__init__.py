@@ -82,7 +82,7 @@ class ViewCollector(type):
                 
         attrs['key_views'] = key_views
 
-        return super(KeyViewCollector, cls).__new__(cls, name, bases, attrs)
+        return super(ViewCollector, cls).__new__(cls, name, bases, attrs)
 
 
 class AggregateView(object):
