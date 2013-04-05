@@ -1,8 +1,7 @@
 from . import fn
-from couchdbkit_aggregate.fn import NO_VALUE
 from memoize import memoize
 
-__all__ = ['AggregateView', 'KeyView', 'IndicatorView']
+__all__ = ['AggregateView', 'KeyView', 'AggregateKeyView']
 
 
 class KeyView(object):
