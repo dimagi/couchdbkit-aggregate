@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from . import fn
+import six
 #from memoize import memoize
 
 __all__ = ['AggregateView', 'KeyView', 'AggregateKeyView']
@@ -85,9 +86,7 @@ class ViewCollector(type):
         return super(ViewCollector, cls).__new__(cls, name, bases, attrs)
 
 
-class AggregateView(object):
-    __metaclass__ = ViewCollector
-
+class AggregateView(six.with_metaclass(ViewCollector, object)):
     @classmethod
     def get_result(cls, key, **kwargs):
         row = {}
